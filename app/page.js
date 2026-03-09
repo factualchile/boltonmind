@@ -2,7 +2,7 @@
 
 import styles from './page.module.css';
 import { motion } from 'framer-motion';
-import { Sparkles, Brain, Heart, Users, ArrowRight } from 'lucide-react';
+import { Sparkles, Wind, Sun, Activity, ArrowRight } from 'lucide-react';
 
 export default function Home() {
   const containerVariants = {
@@ -36,7 +36,7 @@ export default function Home() {
           Bienvenido a <span className="gradient-text">Bolton Mind</span>
         </motion.h1>
         <motion.p className={styles.subtitle} variants={itemVariants}>
-          Tu portal para una vida más libre, feliz y auténtica. Potenciado por tecnología de vanguardia para tu bienestar emocional.
+          Un espacio seguro para tu crecimiento personal. Conecta con tu esencia, comprende tus emociones y vive con mayor claridad y propósito.
         </motion.p>
         <motion.div className={styles.ctaContainer} variants={itemVariants}>
           <button className="btn-premium">Comenzar Viaje</button>
@@ -57,7 +57,7 @@ export default function Home() {
           className={`${styles.bentoItem} ${styles.large} glass-card`}
           variants={itemVariants}
         >
-          <div className={styles.iaIconContainer}>
+          <div className={`${styles.iaIconContainer} breathing-glow`}>
             <Sparkles size={48} className="gradient-text" />
           </div>
           <h2 className="gradient-text" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
@@ -74,21 +74,21 @@ export default function Home() {
         </motion.div>
 
         <motion.div className={`${styles.bentoItem} glass-card`} variants={itemVariants}>
-          <Brain size={32} style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }} />
+          <Wind size={32} style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }} className="breathing-glow" />
           <h3>Mentalidad</h3>
-          <p>Transforma tus patrones de pensamiento para alcanzar tu máximo potencial.</p>
+          <p>Encuentra quietud mental y transforma tus patrones de pensamiento con claridad.</p>
         </motion.div>
 
         <motion.div className={`${styles.bentoItem} glass-card`} variants={itemVariants}>
-          <Heart size={32} style={{ color: 'var(--accent-secondary)', marginBottom: '1rem' }} />
+          <Activity size={32} style={{ color: 'var(--accent-secondary)', marginBottom: '1rem' }} className="breathing-glow" />
           <h3>Emociones</h3>
-          <p>Aprende a navegar y comprender tu mundo interior con claridad.</p>
+          <p>Aprende a fluir, navegando y comprendiendo tu mundo interior con compasión.</p>
         </motion.div>
 
         <motion.div className={`${styles.bentoItem} ${styles.medium} glass-card`} variants={itemVariants}>
-          <Users size={32} style={{ color: 'var(--accent-ethereal)', marginBottom: '1rem' }} />
+          <Sun size={32} style={{ color: 'var(--accent-ethereal)', marginBottom: '1rem' }} className="breathing-glow" />
           <h3>Relaciones</h3>
-          <p>Construye vínculos más profundos, honestos y significativos en todos los ámbitos de tu vida.</p>
+          <p>Irradia autenticidad para construir vínculos más profundos, honestos y significativos en todos los ámbitos.</p>
         </motion.div>
       </motion.section>
 

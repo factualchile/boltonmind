@@ -1,21 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Dynamic Color Palette - Ultra Premium Dark */
-  --bg-dark: #030408;
-  --bg-card: rgba(255, 255, 255, 0.02);
-  --accent-primary: #818cf8;
-  /* Indigo soft */
-  --accent-secondary: #34d399;
-  /* Emerald soft */
-  --accent-ethereal: #c084fc;
-  /* Purple soft */
+  /* Dynamic Color Palette - Serenity-Dark (Wellbeing + Tech) */
+  --bg-dark: #050508;
+  --bg-card: rgba(255, 255, 255, 0.015);
+  --accent-primary: #a78bfa;
+  /* Ethereal Lavender */
+  --accent-secondary: #6ee7b7;
+  /* Calm Mint */
+  --accent-ethereal: #e2e8f0;
+  /* Pearl Grey */
 
   --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-muted: #cbd5e1;
 
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-blur: blur(20px);
+  --glass-border: rgba(255, 255, 255, 0.04);
+  --glass-blur: blur(24px);
 
   /* Typography - Fluid System */
   --font-heading: 'Outfit', sans-serif;
@@ -50,8 +50,8 @@ body::after {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.035;
   pointer-events: none;
   z-index: 9999;
 }
@@ -72,10 +72,10 @@ h6 {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
-  border-radius: 24px;
+  border-radius: 28px;
   position: relative;
   overflow: hidden;
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .glass-card::before {
@@ -110,6 +110,23 @@ h6 {
 @keyframes shine {
   to {
     background-position: 200% center;
+  }
+}
+
+/* Breathing effect for elements */
+.breathing-glow {
+  animation: breathe 5s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.02);
   }
 }
 
