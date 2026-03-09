@@ -8,37 +8,52 @@ export default function VinculosApp() {
     const [step, setStep] = useState('input'); // input, question, analyzing, report
     const [inputType, setInputType] = useState('text'); // text, file, audio
     const [reportData, setReportData] = useState(null);
+    const [inputValue, setInputValue] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const handleAnalizar = () => {
+        if (!inputValue && inputType === 'text') return;
         setStep('question');
     };
 
-    const selectIntention = (intention) => {
+    const selectIntention = async (intention) => {
+        setLoading(true);
         setStep('analyzing');
-        // Simulamos análisis de IA
-        setTimeout(() => {
-            setReportData({
-                resumen: "Se detecta una interacción con alta carga emocional. Existe un patrón de búsqueda de validación por una de las partes y una respuesta defensiva por la otra. El contexto sugiere una conversación pendiente sobre responsabilidades compartidas.",
-                emociones: {
-                    tension: 65,
-                    empatia: 30,
-                    reciprocidad: 45
-                },
-                tono: "Defensivo con destellos de vulnerabilidad no correspondida.",
-                compatibilidad: "Media. Existe una base de afecto pero los canales de comunicación están obstruidos por ruidos cognitivos.",
-                sugerencias: [
-                    "Expresar sentimientos usando el 'Yo' en lugar de culpar al 'Tú'.",
-                    "Escucha activa: Parafrasear lo que la otra persona dijo antes de responder.",
-                    "Establecer un tiempo 'fuera' si la tensión sobrepasa los niveles manejables."
-                ],
-                terapiaPareja: true // En este caso simulado decidimos que sí
+        setError(null);
+
+        try {
+            const res = await fetch('/api/analizar-vinculo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tipo: inputType,
+                    contenido: inputValue,
+                    intencion: intention
+                })
             });
+
+            if (!res.ok) throw new Error('Error al analizar la información');
+
+            const data = await res.json();
+            setReportData(data);
             setStep('report');
-        }, 3000);
+        } catch (err) {
+            console.error(err);
+            setError('Lo sentimos, hubo un error procesando tu solicitud. Por favor intenta de nuevo.');
+            setStep('input');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <main style={{ padding: '8rem 2rem', maxWidth: '1000px', margin: '0 auto' }}>
+            {error && (
+                <div style={{ background: 'rgba(248, 113, 113, 0.1)', color: '#f87171', padding: '1rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid rgba(248, 113, 113, 0.2)', textAlign: 'center' }}>
+                    {error}
+                </div>
+            )}
             <AnimatePresence mode="wait">
 
                 {/* STEP 1: INPUT MODAL */}
@@ -88,6 +103,8 @@ export default function VinculosApp() {
                         <div style={{ marginBottom: '3rem' }}>
                             {inputType === 'text' && (
                                 <textarea
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
                                     placeholder="Pega aquí la conversación (WhatsApp, Email, etc...)"
                                     style={{ width: '100%', height: '200px', padding: '1.5rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', color: 'white', fontFamily: 'inherit', fontSize: '1rem', resize: 'none' }}
                                 />
@@ -96,19 +113,26 @@ export default function VinculosApp() {
                                 <div style={{ width: '100%', height: '200px', border: '2px dashed var(--glass-border)', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
                                     <Upload size={40} style={{ marginBottom: '1rem' }} />
                                     <p>Suelta tu imagen aquí o haz click para subir</p>
+                                    <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>(Procesado vía Vision AI)</p>
                                 </div>
                             )}
                             {inputType === 'audio' && (
                                 <div style={{ width: '100%', height: '200px', border: '1px solid var(--glass-border)', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.03)' }}>
                                     <Mic size={40} style={{ marginBottom: '1rem', color: 'var(--accent-primary)' }} className="breathing-glow" />
                                     <p>Haz clic para comenzar a grabar</p>
+                                    <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>(Transcripción vía Whisper)</p>
                                 </div>
                             )}
                         </div>
 
                         <div style={{ textAlign: 'center' }}>
-                            <button className="btn-premium" style={{ width: '100%', padding: '18px' }} onClick={handleAnalizar}>
-                                Analizar con IA <ArrowRight size={18} style={{ marginLeft: '10px' }} />
+                            <button
+                                className="btn-premium"
+                                style={{ width: '100%', padding: '18px' }}
+                                onClick={handleAnalizar}
+                                disabled={!inputValue && inputType === 'text'}
+                            >
+                                Continuar <ArrowRight size={18} style={{ marginLeft: '10px' }} />
                             </button>
                         </div>
                     </motion.section>
@@ -128,18 +152,42 @@ export default function VinculosApp() {
                             ¿Qué te gustaría comprender realmente sobre esta interacción?
                         </h2>
                         <div style={{ display: 'grid', gap: '1rem', maxWidth: '600px', margin: '0 auto' }}>
-                            <button className="btn-premium" onClick={() => selectIntention('tono')}>Entender el tono emocional</button>
-                            <button className="btn-premium" onClick={() => selectIntention('conflicto')}>Detectar posibles conflictos</button>
-                            <button className="btn-premium" onClick={() => selectIntention('compatibilidad')}>Evaluar la compatibilidad</button>
+                            <button
+                                className="btn-premium"
+                                onClick={() => selectIntention('Entender el tono emocional')}
+                                disabled={loading}
+                            >
+                                Entender el tono emocional
+                            </button>
+                            <button
+                                className="btn-premium"
+                                onClick={() => selectIntention('Detectar posibles conflictos')}
+                                disabled={loading}
+                            >
+                                Detectar posibles conflictos
+                            </button>
+                            <button
+                                className="btn-premium"
+                                onClick={() => selectIntention('Evaluar la compatibilidad')}
+                                disabled={loading}
+                            >
+                                Evaluar la compatibilidad
+                            </button>
                             <div style={{ marginTop: '1rem' }}>
                                 <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>O escribe tu duda específica:</p>
                                 <div style={{ position: 'relative' }}>
                                     <input
                                         type="text"
                                         placeholder="Escribe aquí..."
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') selectIntention(e.target.value);
+                                        }}
                                         style={{ width: '100%', padding: '14px 18px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', color: 'white' }}
                                     />
-                                    <button style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer' }}>
+                                    <button
+                                        onClick={(e) => selectIntention(e.currentTarget.previousSibling.value)}
+                                        style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer' }}
+                                    >
                                         <Send size={20} />
                                     </button>
                                 </div>
