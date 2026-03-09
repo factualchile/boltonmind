@@ -40,7 +40,7 @@ export default function Home() {
         </motion.p>
         <motion.div className={styles.ctaContainer} variants={itemVariants}>
           <button className="btn-premium">Comenzar Viaje</button>
-          <a href="/ia-tools" className={styles.secondaryBtn}>
+          <a href="/herramientas" className={styles.secondaryBtn}>
             Explorar Herramientas <ArrowRight size={18} style={{ marginLeft: '8px', verticalAlign: 'middle' }} />
           </a>
         </motion.div>
@@ -68,7 +68,7 @@ export default function Home() {
             análisis profundo y soporte emocional instantáneo.
           </p>
           <br />
-          <a href="/ia-tools" className="btn-premium" style={{ alignSelf: 'center' }}>
+          <a href="/herramientas" className="btn-premium" style={{ alignSelf: 'center' }}>
             Ver Herramientas de IA
           </a>
         </motion.div>
