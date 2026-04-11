@@ -49,7 +49,7 @@ export async function POST(req) {
     }
 
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'Bolton Mind <onboarding@resend.dev>', // UPDATE
+      from: 'Bolton Mind <bienvenida@boltonmind.cl>', // Updated to verified domain
       to: email,
       subject: 'Tu Evolución Comienza Aquí | Bolton Mind',
       html: `

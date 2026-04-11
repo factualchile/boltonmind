@@ -50,7 +50,7 @@ export async function POST(req) {
     }
 
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'Bolton Mind <onboarding@resend.dev>', // UPDATE IF DOMAIN IS VERIFIED
+      from: 'Bolton Mind <bienvenida@boltonmind.cl>', // Updated to verified domain
       to: email,
       subject: 'Acceso Clínico Autorizado | Bolton Mind',
       html: `
