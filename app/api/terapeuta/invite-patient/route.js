@@ -45,7 +45,7 @@ export async function POST(req) {
     if (profileError) {
        console.error("Profile patient creation error:", profileError);
        await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-       return NextResponse.json({ error: \`Profiles Insert Error: \${profileError.message}\` }, { status: 500 });
+       return NextResponse.json({ error: `Profiles Insert Error: ${profileError.message}` }, { status: 500 });
     }
 
     // 3. Enviar email al paciente

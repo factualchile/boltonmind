@@ -46,7 +46,7 @@ export async function POST(req) {
        console.error("Profile creation error:", profileError);
        // Delete the auth user to rollback
        await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-       return NextResponse.json({ error: \`Profiles Insert Error: \${profileError.message}. Details: \${profileError.details}\` }, { status: 500 });
+       return NextResponse.json({ error: `Profiles Insert Error: ${profileError.message}. Details: ${profileError.details}` }, { status: 500 });
     }
 
     // 4. Enviar email de bienvenida vía Resend
