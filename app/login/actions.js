@@ -28,11 +28,16 @@ export async function login(formData) {
 
   const { data: profile, error: profileErr } = await adminSupabase
     .from('profiles')
-    .select('role')
+    .select('role, requires_password_change')
     .eq('id', data.user.id)
     .single();
 
   const role = profile?.role || 'paciente';
+
+  // Si tiene que cambiar contraseña, lo forzamos.
+  if (profile?.requires_password_change) {
+    return { redirect: '/update-password' };
+  }
 
   if (role === 'admin') {
     return { redirect: '/admin/dashboard' };

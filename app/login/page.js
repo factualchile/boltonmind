@@ -71,7 +71,7 @@ export default function Login() {
             <input name="password" type="password" id="password" className="input-premium" placeholder="••••••••" required/>
           </div>
 
-          <Link href="#" className={styles.forgotPassword}>¿Olvidaste tu contraseña?</Link>
+          <Link href="/forgot-password" className={styles.forgotPassword}>¿Olvidaste tu contraseña?</Link>
 
           <button type="submit" className={`btn-solid ${styles.submitBtn}`} disabled={isPending}>
             {isPending ? <Loader2 className="breathing-glow" size={24} /> : 'Desbloquear mi mente'}

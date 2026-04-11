@@ -35,15 +35,15 @@ export async function middleware(request) {
   const pathname = request.nextUrl.pathname
 
   // 1. Si no hay usuario y tratamos de acceder a áreas privadas
-  if (!user && (pathname.startsWith('/dashboard') || pathname.startsWith('/terapeutas') || pathname.startsWith('/admin'))) {
+  if (!user && (pathname.startsWith('/dashboard') || pathname.startsWith('/terapeutas') || pathname.startsWith('/admin') || pathname.startsWith('/update-password'))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Si hay usuario, vamos a extraer su rol de la tabla profiles (o metadata)
+  // Si hay usuario, vamos a extraer su rol y estado de seguridad de la tabla profiles
   // Para ser eficientes y como solicitamos la DB profiles en la planificación
-  if (user && (pathname.startsWith('/admin') || pathname.startsWith('/terapeutas'))) {
+  if (user && (pathname.startsWith('/admin') || pathname.startsWith('/terapeutas') || pathname.startsWith('/dashboard'))) {
     // Usamos cliente Admin temporal para saltar RLS en middleware
     const adminSupabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -53,11 +53,18 @@ export async function middleware(request) {
 
     const { data: profile } = await adminSupabase
       .from('profiles')
-      .select('role')
+      .select('role, requires_password_change')
       .eq('id', user.id)
       .single()
 
     const role = profile?.role || 'paciente';
+
+    // 1.5. Bloqueo duro: Si requiere actualizar la clave y NO está en la página de update, forzamos
+    if (profile?.requires_password_change && !pathname.startsWith('/update-password')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/update-password'
+      return NextResponse.redirect(url)
+    }
 
     // 2. Proteger área de Admin
     if (pathname.startsWith('/admin') && role !== 'admin') {
