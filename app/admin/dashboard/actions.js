@@ -67,6 +67,10 @@ export async function forcePasswordResetFlag(id) {
 // 5. Alerta de Urgencia
 export async function sendUrgentDashboardPing(email, name) {
   try {
+    if (!email || !email.includes('@')) {
+      return { error: 'El terapeuta no tiene un correo electrónico válido registrado.' };
+    }
+
     const { Resend } = await import('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { error } = await resend.emails.send({

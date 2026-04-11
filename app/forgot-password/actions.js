@@ -6,7 +6,7 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendPasswordReset(email) {
-  if (!email) return { error: 'El email es requerido' };
+  if (!email || !email.includes('@')) return { error: 'Se requiere un correo electrónico válido.' };
 
   try {
     const supabaseAdmin = createAdminClient();
