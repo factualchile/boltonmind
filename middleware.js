@@ -53,11 +53,22 @@ export async function middleware(request) {
 
     const { data: profile } = await adminSupabase
       .from('profiles')
-      .select('role, requires_password_change')
+      .select('role, requires_password_change, is_blocked')
       .eq('id', user.id)
       .single()
 
     const role = profile?.role || 'paciente';
+
+    // 1.2 Bloqueo de Acceso (Usuario Taneado)
+    if (profile?.is_blocked) {
+       // Se le puede enviar a un login con error
+       const url = request.nextUrl.clone()
+       url.pathname = '/login'
+       url.searchParams.set('error', 'Tu cuenta ha sido temporalmente bloqueada por el administrador.');
+       
+       // Idealmente, también le cerramos la sesión en el cliente pero con el middleware congelado no podrá entrar.
+       return NextResponse.redirect(url)
+    }
 
     // 1.5. Bloqueo duro: Si requiere actualizar la clave y NO está en la página de update, forzamos
     if (profile?.requires_password_change && !pathname.startsWith('/update-password')) {

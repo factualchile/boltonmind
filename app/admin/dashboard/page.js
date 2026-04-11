@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import styles from '../../terapeutas/dashboard/terapeutas.module.css';
-import { ShieldCheck, Users, Activity, Plus, Loader2 } from 'lucide-react';
+import { ShieldCheck, Users, Activity, Plus, Loader2, Trash2, Lock, Unlock, KeyRound, ShieldAlert, MailWarning } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getTerapeutas } from './actions';
+import { getTerapeutas, deleteTherapist, toggleBlockStatus, forcePasswordResetFlag, sendUrgentDashboardPing } from './actions';
+import { sendPasswordReset } from '@/app/forgot-password/actions';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('crm');
@@ -28,6 +29,20 @@ export default function AdminDashboard() {
   useEffect(() => {
     loadTerapeutas();
   }, []);
+
+  const executeAction = async (actionFn, t, actionName, reqConfirm = false) => {
+    if (reqConfirm && !window.confirm(`¿Estás seguro que deseas ${actionName} a ${t.nombre}?`)) return;
+    setIsLoading(true);
+    try {
+      const res = await actionFn();
+      if (res.error) alert(`Error: ${res.error}`);
+      else alert(`Acción "${actionName}" ejecutada exitosamente.`);
+    } catch(err) {
+      alert('Error de conexión.');
+    } finally {
+      loadTerapeutas();
+    }
+  };
 
   const handleInvite = async (e) => {
     e.preventDefault();
@@ -102,30 +117,79 @@ export default function AdminDashboard() {
                       <th>Nombre</th>
                       <th>Email</th>
                       <th>Pacientes Inscritos</th>
+                      <th style={{ textAlign: 'right' }}>Administración Suprema</th>
                     </tr>
                   </thead>
                   <tbody>
                     {isLoading ? (
                       <tr>
-                        <td colSpan="3" style={{ textAlign: 'center', padding: '2rem' }}>
+                        <td colSpan="4" style={{ textAlign: 'center', padding: '2rem' }}>
                           <Loader2 className="breathing-glow" style={{ margin: '0 auto' }} />
                         </td>
                       </tr>
                     ) : terapeutas.length === 0 ? (
                       <tr>
-                        <td colSpan="3" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                        <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                           No hay terapeutas registrados aún.
                         </td>
                       </tr>
                     ) : (
                       terapeutas.map((t) => (
-                        <tr key={t.id}>
-                          <td>{t.nombre}</td>
+                        <tr key={t.id} style={{ opacity: t.is_blocked ? 0.5 : 1 }}>
+                          <td>
+                            {t.nombre} 
+                            {t.is_blocked && <span style={{fontSize:'0.7rem', color:'#ef4444', marginLeft:'8px', background:'rgba(239,68,68,0.1)', padding:'2px 6px', borderRadius:'4px'}}>BLOQUEADO</span>}
+                          </td>
                           <td>{t.contacto}</td>
                           <td>
                             <span className={styles.statusBadge} style={{background: 'rgba(255,255,255,0.1)', color: 'white'}}>
                               {t.pacientes_count}
                             </span>
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                              
+                              <button 
+                                onClick={() => executeAction(() => sendPasswordReset(t.emailRaw || t.contacto), t, "Enviar link de recuperación mágico", false)} 
+                                title="Reenviar Acceso Mágico"
+                                style={{ background: 'transparent', border: '1px solid rgba(167, 139, 250, 0.3)', color: '#a78bfa', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
+                              >
+                                <KeyRound size={16} />
+                              </button>
+
+                              <button 
+                                onClick={() => executeAction(() => sendUrgentDashboardPing(t.emailRaw || t.contacto, t.nombre), t, "Enviar Notificación Prioritaria", true)} 
+                                title="Aviso Urgente Oficial"
+                                style={{ background: 'transparent', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
+                              >
+                                <MailWarning size={16} />
+                              </button>
+
+                              <button 
+                                onClick={() => executeAction(() => forcePasswordResetFlag(t.id), t, "Forzar Nueva Contraseña", true)} 
+                                title="Forzar Rotación de Clave de Seguridad"
+                                style={{ background: 'transparent', border: '1px solid rgba(250, 204, 21, 0.3)', color: '#facc15', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
+                              >
+                                <ShieldAlert size={16} />
+                              </button>
+
+                              <button 
+                                onClick={() => executeAction(() => toggleBlockStatus(t.id, t.is_blocked), t, t.is_blocked ? "Desbloquear" : "Bloquear", true)}
+                                title={t.is_blocked ? "Desbloquear Acceso" : "Bloquear Acceso Temporalmente"}
+                                style={{ background: 'transparent', border: `1px solid ${t.is_blocked ? 'rgba(34, 197, 94, 0.3)' : 'rgba(249, 115, 22, 0.3)'}`, color: t.is_blocked ? '#22c55e' : '#f97316', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
+                              >
+                                {t.is_blocked ? <Unlock size={16} /> : <Lock size={16} />}
+                              </button>
+
+                              <button 
+                                onClick={() => executeAction(() => deleteTherapist(t.id), t, "Eliminar permanentemente", true)} 
+                                title="Destruir Perfil Permanentemente"
+                                style={{ background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}
+                              >
+                                <Trash2 size={16} />
+                              </button>
+
+                            </div>
                           </td>
                         </tr>
                       ))
