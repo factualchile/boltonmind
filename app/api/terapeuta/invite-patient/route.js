@@ -48,7 +48,6 @@ export async function POST(req) {
        return NextResponse.json({ error: `Profiles Insert Error: ${profileError.message}` }, { status: 500 });
     }
 
-    // 3. Enviar email al paciente
     const { data: emailData, error: emailError } = await resend.emails.send({
       from: 'Bolton Mind <onboarding@resend.dev>', // UPDATE
       to: email,
@@ -81,6 +80,11 @@ export async function POST(req) {
         </div>
       `
     });
+
+    if (emailError) {
+      console.error("Resend patient error:", emailError);
+      return NextResponse.json({ error: `Registrado correctamente, pero falló envío de Resend: ${emailError.message}` }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, user: authData.user });
   } catch (error) {

@@ -49,7 +49,6 @@ export async function POST(req) {
        return NextResponse.json({ error: `Profiles Insert Error: ${profileError.message}. Details: ${profileError.details}` }, { status: 500 });
     }
 
-    // 4. Enviar email de bienvenida vía Resend
     const { data: emailData, error: emailError } = await resend.emails.send({
       from: 'Bolton Mind <onboarding@resend.dev>', // UPDATE IF DOMAIN IS VERIFIED
       to: email,
@@ -79,6 +78,11 @@ export async function POST(req) {
         </div>
       `
     });
+
+    if (emailError) {
+      console.error("Resend error:", emailError);
+      return NextResponse.json({ error: `Usuario creado, pero falló el envío de correo: ${emailError.message}` }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, user: authData.user, emailTracking: emailData });
   } catch (error) {
