@@ -90,6 +90,20 @@ export async function middleware(request) {
       url.pathname = role === 'paciente' ? '/dashboard' : '/login'
       return NextResponse.redirect(url)
     }
+
+    // 4. Proteger área de Paciente (Evitar que Terapeutas/Admins caigan aquí por defecto)
+    if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
+      if (role === 'admin') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/admin/dashboard'
+        return NextResponse.redirect(url)
+      }
+      if (role === 'terapeuta') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/terapeutas/dashboard'
+        return NextResponse.redirect(url)
+      }
+    }
   }
 
   return supabaseResponse
