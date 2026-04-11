@@ -20,7 +20,7 @@ export async function sendPasswordReset(email) {
       type: 'recovery',
       email: email,
       options: {
-        redirectTo: process.env.NEXT_PUBLIC_SITE_URL ? \`\${process.env.NEXT_PUBLIC_SITE_URL}/update-password\` : 'http://localhost:3000/update-password'
+        redirectTo: process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/update-password` : 'http://localhost:3000/update-password'
       }
     });
 
@@ -37,7 +37,7 @@ export async function sendPasswordReset(email) {
       from: 'Bolton Mind <bienvenida@boltonmind.cl>',
       to: email,
       subject: 'Recupera tu Acceso | Bolton Mind',
-      html: \`
+      html: `
         <div style="font-family: 'Inter', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0A0A0E; padding: 40px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); color: #e2e8f0;">
           <div style="text-align: center; margin-bottom: 30px;">
             <h1 style="background: linear-gradient(135deg, #a78bfa, #fbcfe8, #a8edea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; font-size: 28px; font-weight: 300; letter-spacing: -0.5px;">Bolton Mind</h1>
@@ -48,7 +48,7 @@ export async function sendPasswordReset(email) {
           </p>
           <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); padding: 25px; border-radius: 8px; margin: 30px 0; text-align: center;">
             <p style="margin: 0 0 15px 0; font-size: 14px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Ingreso Directo</p>
-            <a href="\${action_link}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;">
+            <a href="${action_link}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;">
               Recuperar mi cuenta
             </a>
           </div>
@@ -60,7 +60,7 @@ export async function sendPasswordReset(email) {
             Plataforma Segura e Inteligente.<br>Bolton Mind
           </p>
         </div>
-      \`
+      `
     });
 
     if (emailError) {
