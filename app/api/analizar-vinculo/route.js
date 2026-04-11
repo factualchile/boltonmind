@@ -1,12 +1,12 @@
 import { OpenAI } from 'openai';
 import { NextResponse } from 'next/server';
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req) {
     try {
+        const openai = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY || '', // Default string to prevent build crash if missing
+        });
+
         const { tipo, contenido, intencion } = await req.json();
 
         let userPrompt = `Analiza el siguiente contenido de una relación personal.

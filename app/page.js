@@ -2,7 +2,8 @@
 
 import styles from './page.module.css';
 import { motion } from 'framer-motion';
-import { Sparkles, Wind, Sun, Activity, ArrowRight } from 'lucide-react';
+import { Sparkles, Wind, Sun, Activity, ArrowRight, BrainCircuit, Heart, Fingerprint } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
   const containerVariants = {
@@ -10,13 +11,13 @@ export default function Home() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2
+        staggerChildren: 0.15
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
@@ -26,74 +27,97 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <motion.header
+      {/* Navbar Minimalista */}
+      <nav className={styles.navbar}>
+        <div className={styles.logo}>
+          <BrainCircuit size={24} className="gradient-accent" />
+          Bolton Mind
+        </div>
+        <div className={styles.navLinks}>
+          <Link href="/herramientas" className={styles.navLink}>Herramientas</Link>
+          <Link href="/nosotros" className={styles.navLink}>Filosofía</Link>
+          <Link href="/login" className={`${styles.navLink} btn-premium ${styles.loginBtn}`} style={{ padding: '8px 24px' }}>
+            Acceder
+          </Link>
+        </div>
+      </nav>
+
+      <motion.section
         className={styles.hero}
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        <motion.h1 variants={itemVariants}>
-          Bienvenido a <span className="gradient-text">Bolton Mind</span>
-        </motion.h1>
-        <motion.p className={styles.subtitle} variants={itemVariants}>
-          Un espacio seguro para tu crecimiento personal. Conecta con tu esencia, comprende tus emociones y vive con mayor claridad y propósito.
-        </motion.p>
-        <motion.div className={styles.ctaContainer} variants={itemVariants}>
-          <button className="btn-premium">Comenzar Viaje</button>
-          <a href="/herramientas" className={styles.secondaryBtn}>
-            Explorar Herramientas <ArrowRight size={18} style={{ marginLeft: '8px', verticalAlign: 'middle' }} />
-          </a>
+        <motion.div className={styles.badge} variants={itemVariants}>
+          <Sparkles size={16} /> Evolución Consciente
         </motion.div>
-      </motion.header>
+        
+        <motion.h1 variants={itemVariants}>
+          Encuentra tu centro. <br />
+          <span className="gradient-text">Expande tu potencial.</span>
+        </motion.h1>
+        
+        <motion.p className={styles.subtitle} variants={itemVariants}>
+          Una plataforma tecnológica diseñada para cultivar la paz mental, la autenticidad y la libertad emocional en el mundo moderno.
+        </motion.p>
+        
+        <motion.div className={styles.ctaContainer} variants={itemVariants}>
+          <Link href="/login" className="btn-solid">
+            Comenzar mi viaje
+          </Link>
+          <Link href="/herramientas" className={styles.secondaryBtn}>
+            Explorar capacidades <ArrowRight size={18} style={{ marginLeft: '8px', verticalAlign: 'middle' }} />
+          </Link>
+        </motion.div>
+      </motion.section>
 
       <motion.section
-        className={styles.bentoGrid}
+        className={styles.featuresSection}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={containerVariants}
       >
-        <motion.div
-          className={`${styles.bentoItem} ${styles.large} glass-card`}
-          variants={itemVariants}
-        >
-          <div className={`${styles.iaIconContainer} breathing-glow`}>
-            <Sparkles size={48} className="gradient-text" />
-          </div>
-          <h2 className="gradient-text" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
-            Inteligencia Artificial
-          </h2>
-          <p>
-            Accede a herramientas personalizadas diseñadas para tu crecimiento personal,
-            análisis profundo y soporte emocional instantáneo.
-          </p>
-          <br />
-          <a href="/herramientas" className="btn-premium" style={{ alignSelf: 'center' }}>
-            Ver Herramientas de IA
-          </a>
-        </motion.div>
+        <div className={styles.sectionHeader}>
+          <motion.h2 variants={itemVariants}>Tecnología al servicio de tu bienestar</motion.h2>
+          <motion.p variants={itemVariants} style={{ color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
+            Integramos inteligencia artificial empática con prácticas basadas en evidencia clínica para transformar tu día a día.
+          </motion.p>
+        </div>
 
-        <motion.div className={`${styles.bentoItem} glass-card`} variants={itemVariants}>
-          <Wind size={32} style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }} className="breathing-glow" />
-          <h3>Mentalidad</h3>
-          <p>Encuentra quietud mental y transforma tus patrones de pensamiento con claridad.</p>
-        </motion.div>
+        <motion.div className={styles.bentoGrid} variants={containerVariants}>
+          <motion.div className={`${styles.bentoItem} ${styles.large} glass-card`} variants={itemVariants}>
+            <div className={styles.iconContainer}>
+              <Heart size={28} className="gradient-accent" />
+            </div>
+            <h3 className="gradient-text">Felicidad Auténtica</h3>
+            <p>
+              Desarrolla herramientas emocionales sólidas. Nuestro motor de IA analiza tus patrones para proporcionarte 
+              perspectivas claras y ejercicios personalizados que fomentan un estado de bienestar profundo y sostenido, 
+              alejado de placebos temporales.
+            </p>
+          </motion.div>
 
-        <motion.div className={`${styles.bentoItem} glass-card`} variants={itemVariants}>
-          <Activity size={32} style={{ color: 'var(--accent-secondary)', marginBottom: '1rem' }} className="breathing-glow" />
-          <h3>Emociones</h3>
-          <p>Aprende a fluir, navegando y comprendiendo tu mundo interior con compasión.</p>
-        </motion.div>
+          <motion.div className={`${styles.bentoItem} ${styles.regular} glass-card`} variants={itemVariants}>
+            <div className={styles.iconContainer}>
+              <Wind size={28} style={{ color: 'var(--accent-primary)' }} />
+            </div>
+            <h3>Paz Mental</h3>
+            <p>Sistemas sin fricción que organizan tu caos interno, proporcionando quietud en un mundo hiperconectado.</p>
+          </motion.div>
 
-        <motion.div className={`${styles.bentoItem} ${styles.medium} glass-card`} variants={itemVariants}>
-          <Sun size={32} style={{ color: 'var(--accent-ethereal)', marginBottom: '1rem' }} className="breathing-glow" />
-          <h3>Relaciones</h3>
-          <p>Irradia autenticidad para construir vínculos más profundos, honestos y significativos en todos los ámbitos.</p>
+          <motion.div className={`${styles.bentoItem} ${styles.regular} glass-card`} variants={itemVariants}>
+            <div className={styles.iconContainer}>
+              <Fingerprint size={28} style={{ color: 'var(--accent-secondary)' }} />
+            </div>
+            <h3>Libertad & Verdad</h3>
+            <p>Reconecta con quien realmente eres. Desaprende condicionamientos y toma decisiones alineadas a tu esencia vital.</p>
+          </motion.div>
         </motion.div>
       </motion.section>
 
-      <footer style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
-        <p>© {new Date().getFullYear()} Bolton Mind. Elevando la consciencia humana.</p>
+      <footer style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: 'auto' }}>
+        <p>© {new Date().getFullYear()} Bolton Mind. Elevando la consciencia humana con tecnología.</p>
       </footer>
     </main>
   );
