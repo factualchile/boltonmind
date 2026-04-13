@@ -1,20 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './terapeutas.module.css';
-import { Settings, Users, FileText, Search, Plus, MoreVertical, ShieldCheck } from 'lucide-react';
+import { Settings, Users, FileText, Search, Plus, Loader2, Trash2, Lock, Unlock, KeyRound, ShieldAlert, MailWarning } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getMyPatients, therapistDeletePatient, therapistToggleBlock, therapistForcePasswordReset, therapistSendUrgentPing } from './actions';
+import { sendPasswordReset } from '@/app/forgot-password/actions';
 
 export default function TherapistDashboard() {
   const [activeTab, setActiveTab] = useState('crm');
   const [showInvite, setShowInvite] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [inviteForm, setInviteForm] = useState({ nombre: '', email: '', rut: '', telefono: '' });
+  const [pacientes, setPacientes] = useState([]);
 
-  // Pacientes mockeados para el CRM (en el futuro se cargan vía supabase .from('profiles').eq('terapeuta_id', miId))
-  const [pacientes, setPacientes] = useState([
-    { id: 1, nombre: 'Ana Martínez', email: 'ana@ejemplo.com', tel: '+56 9 1234 5678', estado: 'activo', ultimaSesion: '10 Abril 2026' },
-  ]);
+  const loadPatients = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getMyPatients();
+      setPacientes(data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPatients();
+  }, []);
+
+  const executeAction = async (actionFn, p, actionName, reqConfirm = false) => {
+    if (reqConfirm && !window.confirm(`¿Estás seguro que deseas ${actionName} a ${p.nombre}?`)) return;
+    setIsLoading(true);
+    try {
+      const res = await actionFn();
+      if (res.error) alert(`Error: ${res.error}`);
+      else alert(`Acción "${actionName}" ejecutada exitosamente.`);
+    } catch(err) {
+      alert('Error de conexión.');
+    } finally {
+      loadPatients();
+    }
+  };
 
   const handleInvite = async (e) => {
     e.preventDefault();
@@ -123,31 +152,110 @@ export default function TherapistDashboard() {
                     <th>Nombre</th>
                     <th>Contacto</th>
                     <th>Estado</th>
-                    <th>Última Sesión</th>
-                    <th></th>
+                    <th>Registro Inicial</th>
+                    <th style={{ textAlign: 'right' }}>Gestión</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pacientes.map(p => (
-                    <tr key={p.id}>
-                      <td>{p.nombre}</td>
-                      <td>
-                        <div style={{ fontSize: '0.9rem' }}>{p.email}</div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{p.tel}</div>
-                      </td>
-                      <td>
-                        <span className={`${styles.statusBadge} ${styles['status-' + p.estado]}`}>
-                          {p.estado.charAt(0).toUpperCase() + p.estado.slice(1)}
-                        </span>
-                      </td>
-                      <td>{p.ultimaSesion}</td>
-                      <td>
-                        <button className={styles.actionBtn}>
-                          <MoreVertical size={18} />
-                        </button>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>
+                        <Loader2 className="breathing-glow" style={{ margin: '0 auto' }} />
                       </td>
                     </tr>
-                  ))}
+                  ) : pacientes.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                        No tienes pacientes registrados aún.
+                      </td>
+                    </tr>
+                  ) : (
+                    pacientes.map(p => {
+                       // Lógica Bíológica Semáforo
+                       let estado = 'Activo';
+                       let statusColor = '#22c55e'; // Verde
+                       if (p.is_blocked) {
+                         estado = 'Bloqueado';
+                         statusColor = '#ef4444'; // Rojo
+                       } else if (p.requires_password_change) {
+                         estado = 'Invitado';
+                         statusColor = '#f97316'; // Naranja
+                       }
+
+                       return (
+                        <tr key={p.id} style={{ opacity: p.is_blocked ? 0.5 : 1 }}>
+                          <td>{p.nombre}</td>
+                          <td>
+                            <div style={{ fontSize: '0.9rem' }}>{p.contacto}</div>
+                          </td>
+                          <td>
+                            <span 
+                              className={styles.statusBadge} 
+                              style={{ 
+                                background: \`rgba(\${statusColor === '#22c55e' ? '34, 197, 94' : statusColor === '#ef4444' ? '239, 68, 68' : '249, 115, 22'}, 0.1)\`, 
+                                color: statusColor, 
+                                border: \`1px solid \${statusColor}\`,
+                                fontSize: '0.75rem',
+                                padding: '2px 8px'
+                              }}
+                            >
+                              {estado}
+                            </span>
+                          </td>
+                          <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                            {new Date(p.created_at).toLocaleDateString()}
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                              <button 
+                                onClick={() => executeAction(() => sendPasswordReset(p.emailRaw || p.contacto), p, "Enviar link de recuperación mágico", false)} 
+                                title="Reenviar Acceso Mágico"
+                                style={{ background: 'transparent', border: '1px solid rgba(167, 139, 250, 0.3)', color: '#a78bfa', padding: '5px', borderRadius: '4px', cursor: 'pointer' }}
+                              >
+                                <KeyRound size={14} />
+                              </button>
+
+                              {!p.requires_password_change && (
+                                <>
+                                  <button 
+                                    onClick={() => executeAction(() => therapistSendUrgentPing(p.emailRaw || p.contacto, p.nombre), p, "Enviar Notificación Prioritaria", true)} 
+                                    title="Aviso Urgente Oficial"
+                                    style={{ background: 'transparent', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', padding: '5px', borderRadius: '4px', cursor: 'pointer' }}
+                                  >
+                                    <MailWarning size={14} />
+                                  </button>
+
+                                  <button 
+                                    onClick={() => executeAction(() => therapistForcePasswordReset(p.id), p, "Forzar Nueva Contraseña", true)} 
+                                    title="Forzar Rotación de Clave"
+                                    style={{ background: 'transparent', border: '1px solid rgba(250, 204, 21, 0.3)', color: '#facc15', padding: '5px', borderRadius: '4px', cursor: 'pointer' }}
+                                  >
+                                    <ShieldAlert size={14} />
+                                  </button>
+
+                                  <button 
+                                    onClick={() => executeAction(() => therapistToggleBlock(p.id, p.is_blocked), p, p.is_blocked ? "Desbloquear" : "Bloquear", true)}
+                                    title={p.is_blocked ? "Desbloquear Acceso" : "Bloquear Acceso Temporalmente"}
+                                    style={{ background: 'transparent', border: \`1px solid \${p.is_blocked ? 'rgba(34, 197, 94, 0.3)' : 'rgba(249, 115, 22, 0.3)'}\`, color: p.is_blocked ? '#22c55e' : '#f97316', padding: '5px', borderRadius: '4px', cursor: 'pointer' }}
+                                  >
+                                    {p.is_blocked ? <Unlock size={14} /> : <Lock size={14} />}
+                                  </button>
+                                </>
+                              )}
+
+                              <button 
+                                onClick={() => executeAction(() => therapistDeletePatient(p.id), p, "Eliminar permanentemente", true)} 
+                                title="Destruir Perfil"
+                                style={{ background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '5px', borderRadius: '4px', cursor: 'pointer' }}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
