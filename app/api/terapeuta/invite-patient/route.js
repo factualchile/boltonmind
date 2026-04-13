@@ -1,16 +1,27 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/utils/supabase/admin';
+import { createClient } from '@/utils/supabase/server';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
   try {
-    const { email, nombre, telefono, rut, terapeuta_id } = await req.json();
+    const { email, nombre, telefono, rut } = await req.json();
 
-    if (!email || !nombre || !terapeuta_id) {
-      return NextResponse.json({ error: 'Email, Nombre y Terapeuta ID son requeridos' }, { status: 400 });
+    if (!email || !nombre) {
+      return NextResponse.json({ error: 'Email y Nombre son requeridos' }, { status: 400 });
     }
+
+    // 0. Obtener al Terapeuta desde las Cookies (Súper Seguro)
+    const supabaseSession = await createClient();
+    const { data: { user }, error: sessionError } = await supabaseSession.auth.getUser();
+
+    if (sessionError || !user) {
+      return NextResponse.json({ error: 'Sesión no autorizada o expirada.' }, { status: 401 });
+    }
+
+    const terapeuta_id = user.id;
 
     const supabaseAdmin = createAdminClient();
 
@@ -68,7 +79,7 @@ export async function POST(req) {
             <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Tus Credenciales de Entrada</p>
             <p style="margin: 5px 0; font-size: 16px;"><strong>Email:</strong> <span style="color: #a8edea;">${email}</span></p>
             <p style="margin: 5px 0; font-size: 16px;"><strong>Contraseña:</strong> <span style="color: #fbcfe8; font-family: monospace; font-size: 18px;">${temporalPassword}</span></p>
-            <p style="margin: 5px 0; font-size: 16px;"><strong>Entrar a la plataforma:</strong> <a href="http://localhost:3002/login" style="color: #a78bfa; text-decoration: none;">http://localhost:3002/login</a></p>
+            <p style="margin: 5px 0; font-size: 16px;"><strong>Entrar a la plataforma:</strong> <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://boltonmind.cl'}/login" style="color: #a78bfa; text-decoration: none;">${process.env.NEXT_PUBLIC_SITE_URL || 'boltonmind.cl'}/login</a></p>
           </div>
           <p style="font-size: 14px; color: #64748b; font-weight: 300;">
             Este es un espacio confidencial. Te recomendamos cambiar tu contraseña temporal al ingresar por primera vez.

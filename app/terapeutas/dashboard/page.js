@@ -20,10 +20,7 @@ export default function TherapistDashboard() {
     e.preventDefault();
     setIsInviting(true);
     try {
-      // Necesitaremos el ID del terapeuta, por ahora lo pasamos hardcodeado u omitimos si se lee de la request/sesión
-      // En prod, debemos extraer el terapeuta_id desde la sesion del servidor o cliente
-      const bodyPayload = { ...inviteForm, terapeuta_id: 'ID_DEL_TERAPEUTA_LOGUEADO_AQUI' };
-      
+      const bodyPayload = { ...inviteForm };
       const res = await fetch('/api/terapeuta/invite-patient', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
